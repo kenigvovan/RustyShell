@@ -1,10 +1,10 @@
 {
     "type": "code",
-    "modid": "rustyshell",
+    "modid": "rustyshellfork",
     "name": "Rusty Shell",
-    "authors": ["Lastelle"],
+    "authors": ["Lastelle", "KenigVovan"],
     "description": "A mod that aims to add industrial warfare to Vintage Story.",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "dependencies": {
         "game": ""
     }

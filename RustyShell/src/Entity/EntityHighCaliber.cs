@@ -56,7 +56,7 @@ namespace RustyShell {
                 this.msLaunch         = this.World.ElapsedMilliseconds;
                 this.collisionTestBox = this.SelectionBox.Clone().OmniGrowBy(0.05f);
 
-                this.GetBehavior<EntityBehaviorPassivePhysics>().collisionYExtra = 0f;
+                this.GetBehavior<EntityBehaviorPassivePhysics>().CollisionYExtra = 0f;
 
                 this.entityPartitioning = api.ModLoader.GetModSystem<EntityPartitioning>();
 

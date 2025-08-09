@@ -35,7 +35,7 @@ namespace RustyShell {
             ) {
 
                 base.Initialize(properties, api, InChunkIndex3d);
-                this.GetBehavior<EntityBehaviorPassivePhysics>().collisionYExtra = 0f;
+                this.GetBehavior<EntityBehaviorPassivePhysics>().CollisionYExtra = 0f;
 
                 this.collisionTestBox   = this.CollisionBox.Clone().OmniGrowBy(0.05f);
                 this.entityPartitioning = api.ModLoader.GetModSystem<EntityPartitioning>();

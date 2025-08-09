@@ -17,7 +17,7 @@
 	"shape": { "base": "ammunition/cartridge" },
 	"textures": {
         "material":        { "base": "game:block/metal/sheet/blackbronze1" },
-        "blastpowdersack": { "base": "game:item/resource/blastpowdersack" }
+		"blastpowdersack": { "base": "game:item/bag/linensack/linen" }
 	},
 	"guiTransform": {
 		"translation": { "x":   3, "y":  -4, "z":   0 },

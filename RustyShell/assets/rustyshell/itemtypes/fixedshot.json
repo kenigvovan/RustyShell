@@ -33,11 +33,11 @@
     "texturesByType": {
       "*-stone": {
         "material":        { "base": "game:block/stone/rock/granite1" },
-        "blastpowdersack": { "base": "game:item/resource/blastpowdersack" }
+        "blastpowdersack": { "base": "game:item/bag/linensack/linen" }
       },
       "*": {
         "material":        { "base": "game:block/metal/sheet/lead1" },
-        "blastpowdersack": { "base": "game:item/resource/blastpowdersack" }
+        "blastpowdersack": { "base": "game:item/bag/linensack/linen" }
       }
     },
     "heldTpIdleAnimation": "holdbothhandslarge", "heldTpUseAnimation": "twohandplaceblock",
