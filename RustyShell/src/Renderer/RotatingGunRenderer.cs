@@ -47,7 +47,7 @@ namespace RustyShell {
                 .RotateY(this.orientable.Orientation)
                 .Translate(this.gearAnchor.X - 0.5f, this.gearAnchor.Y, this.gearAnchor.Z - 0.5f)
                 .RotateX(MathF.Atan(this.gearedGun.Elevation))
-                .Translate(this.barrelAnchor.X - 0.5f, this.barrelAnchor.Y, this.barrelAnchor.Z - 0.5f)
+                .Translate(this.barrelAnchor.X, this.barrelAnchor.Y, this.barrelAnchor.Z -0.5)
                 .RotateZ(this.repeatingFire.Angle)
                 .Translate(-this.barrelAnchor.X, -this.barrelAnchor.Y,-this.barrelAnchor.Z)
                 .Values;
