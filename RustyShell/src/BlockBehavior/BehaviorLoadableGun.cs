@@ -7,6 +7,7 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Config;
 using Vintagestory.API.Util;
+using Vintagestory.GameContent;
 
 
 namespace RustyShell {
@@ -19,11 +20,12 @@ namespace RustyShell {
             /** <summary> An array of each available ammunition for this gun </summary> **/       internal Item[] Ammunitions;
             /** <summary> An array of each available ammunition code for this gun </summary> **/  private string[] ammunitionCodes;
             /** <summary> An array of each available ammunition code for this gun </summary> **/  private int ammunitionLimit;
+            /** <summary> Gun ignition delay in seconds </summary> **/                            private float fuseDuration;
 
             private ItemStack[] ammunitionStacks;
 
-            private static ItemStack[] BlastingPowderStack;
-            private static ItemStack[] LanyardStacks;
+            private static ItemStack[] BaggedChargeStacks;
+            private static ItemStack[] PrimerStacks;
 
 
         //===============================
@@ -40,6 +42,7 @@ namespace RustyShell {
                 JsonObject ammunitions = properties["ammunitionCodes"];
                 this.ammunitionLimit   = properties["ammunitionLimit"].AsInt(1);
                 this.ammunitionCodes   = ((this.block.Variant["barrel"] is string barrel && ammunitions[barrel].Exists) ? ammunitions[barrel] : ammunitions).AsArray<string>();
+                this.fuseDuration      = properties["fuseDuration"].AsFloat();
 
             } // void ..
 
@@ -57,21 +60,22 @@ namespace RustyShell {
                 this.Ammunitions   ??= ammunitions.ToArray();
                 this.ammunitionCodes = null;
 
-                BlockBehaviorLoadableGun.BlastingPowderStack = ObjectCacheUtil.GetOrCreate(api, "blastingPowderStack", delegate {
-                    return api.World.GetItem(new AssetLocation("maltiezfirearms:gunpowder-fine")) is Item gunPowder
-                    ? new ItemStack[2] { new(api.World.GetItem(new AssetLocation("game:blastingpowder"))), new(gunPowder) }
-                    : new ItemStack[1] { new(api.World.GetItem(new AssetLocation("game:blastingpowder"))) };
+                BlockBehaviorLoadableGun.BaggedChargeStacks = ObjectCacheUtil.GetOrCreate(api, "baggedChargeStacks", delegate {
+                    return api.World
+                        .SearchItems(new AssetLocation("rustyshell:baggedcharge-*"))
+                        .Select(charge => new ItemStack(charge, 1))
+                        .ToArray();
                 }); // ..
 
 
                 if (api is ICoreClientAPI client) {
-                    BlockBehaviorLoadableGun.LanyardStacks = ObjectCacheUtil.GetOrCreate(client, "lanyardStacks", delegate {
+                    BlockBehaviorLoadableGun.PrimerStacks = ObjectCacheUtil.GetOrCreate(client, "primerStacks", delegate {
 
-                        List<ItemStack> lanyardStacks = new ();
-                        foreach (Item item in api.World.SearchItems(new AssetLocation("rustyshell:lanyard-*")))
-                            lanyardStacks.AddRange(item.GetHandBookStacks(client));
+                        List<ItemStack> primerStacks = new ();
+                        foreach (Item item in api.World.SearchItems(new AssetLocation("rustyshell:primer-*")))
+                            primerStacks.AddRange(item.GetHandBookStacks(client));
 
-                        return lanyardStacks.ToArray();
+                        return primerStacks.ToArray();
                     }); // ..
 
                     this.ammunitionStacks = new ItemStack[this.Ammunitions.Length];
@@ -97,16 +101,16 @@ namespace RustyShell {
                 private bool HasAmmunition(IPlayer byPlayer) => this.Ammunitions.Contains(byPlayer.Entity.ActiveHandItemSlot.Itemstack?.Item);
 
                 /// <summary>
-                /// Indicates whether or not a given player has a matching detonator
+                /// Indicates whether or not a given player has a matching charge
                 /// </summary>
                 /// <param name="byPlayer"></param>
-                private static bool HasDetonator(IPlayer byPlayer) => BlockBehaviorLoadableGun.BlastingPowderStack.Any(x => x?.Collectible.Code.Path == byPlayer.Entity.ActiveHandItemSlot.Itemstack?.Collectible.Code.Path);
+                private static bool HasCharge(IPlayer byPlayer) => BlockBehaviorLoadableGun.BaggedChargeStacks.Any(x => x?.Collectible.Code.Path == byPlayer.Entity.ActiveHandItemSlot.Itemstack?.Collectible.Code.Path);
 
                 /// <summary>
-                /// Indicates whether or not a given gun requires a detonator to fire
+                /// Indicates whether or not a given gun requires a charge to fire
                 /// </summary>
                 /// <param name="blockEntity"></param>
-                private static bool GunRequiresDetonator(BlockEntityHeavyGun blockEntity) => blockEntity?.BlockHeavyGun.BarrelType == EnumBarrelType.Smoothbore && !blockEntity.FusedAmmunition;
+                private static bool GunRequiresCharge(BlockEntityHeavyGun blockEntity) => !blockEntity?.FusedAmmunition == true && blockEntity.BlockHeavyGun.MuzzleLoading;
 
 
                 public override WorldInteraction[] GetPlacedBlockInteractionHelp(
@@ -116,22 +120,22 @@ namespace RustyShell {
                     ref EnumHandling handled
                 ) {
                     return new WorldInteraction[] {
-                        new WorldInteraction() {
-                            ActionLangCode    = "blockhelp-loadable-filldetonator",
+                        new () {
+                            ActionLangCode    = "blockhelp-loadable-fillcharge",
                             MouseButton       = EnumMouseButton.Right,
-                            Itemstacks        = BlockBehaviorLoadableGun.BlastingPowderStack,
+                            Itemstacks        = BlockBehaviorLoadableGun.BaggedChargeStacks,
                             GetMatchingStacks = (wi, bs, es) => {
 
                                 BlockEntityHeavyGun blockEntity = world.BlockAccessor.GetBlockEntity<BlockEntityHeavyGun>(bs.Position);
 
-                                if (!BlockBehaviorLoadableGun.GunRequiresDetonator(blockEntity)) return null;
-                                if (blockEntity?.DetonatorSlot?.StackSize >= 16) return null;
+                                if (!BlockBehaviorLoadableGun.GunRequiresCharge(blockEntity))                                           return null;
+                                if (blockEntity?.ChargeSlot?.StackSize == blockEntity?.ChargeSlot?.Itemstack?.Collectible.MaxStackSize) return null;
                                 if (blockEntity?.CanFill ?? false) return wi.Itemstacks;
                                 return null;
                                 
                             } // ..
                         }, // new ..
-                        new WorldInteraction() {
+                        new () {
                             ActionLangCode    = "blockhelp-loadable-fillammunition",
                             MouseButton       = EnumMouseButton.Right,
                             Itemstacks        = this.ammunitionStacks,
@@ -147,11 +151,11 @@ namespace RustyShell {
                                 
                             } // ..
                         }, // new ..
-                        new WorldInteraction() {
+                        new () {
                             ActionLangCode    = "blockhelp-loadable-fire",
                             MouseButton       = EnumMouseButton.Right,
                             HotKeyCode        = "shift",
-                            Itemstacks        = BlockBehaviorLoadableGun.LanyardStacks,
+                            Itemstacks        = BlockBehaviorLoadableGun.PrimerStacks,
                             GetMatchingStacks = (wi, bs, es) => {
 
                                 BlockEntityHeavyGun blockEntity = world.BlockAccessor.GetBlockEntity<BlockEntityHeavyGun>(bs.Position);
@@ -194,11 +198,11 @@ namespace RustyShell {
 
 
                         blockEntity.Inventory ??= new InventoryGeneric(2, "heavygun-" + blockSel.Position, blockEntity.Api);
-                        if (BlockBehaviorLoadableGun.GunRequiresDetonator(blockEntity) && HasDetonator(byPlayer)) {
+                        if (BlockBehaviorLoadableGun.GunRequiresCharge(blockEntity) && HasCharge(byPlayer)) {
 
-                            int moveableQuantity = GameMath.Min(16 - blockEntity.DetonatorSlot.StackSize, 1);
+                            int moveableQuantity = GameMath.Min(16 - blockEntity.ChargeSlot.StackSize, 1);
 
-                            slot.TryPutInto(blockEntity.Api.World, blockEntity.DetonatorSlot, moveableQuantity);
+                            slot.TryPutInto(blockEntity.Api.World, blockEntity.ChargeSlot, moveableQuantity);
                             blockEntity.MarkDirty();
 
                            handling = EnumHandling.PreventSubsequent;
@@ -218,11 +222,43 @@ namespace RustyShell {
                     
                     if (blockEntity.CanFire
                         && byPlayer.Entity.Controls.Sneak
-                        && (collectible?.Code.Path.StartsWith("lanyard") ?? false)
+                        && (collectible?.Code.Path.StartsWith("primer") ?? false)
                     ) {
 
                         handling = EnumHandling.PreventSubsequent;
-                        blockEntity.Fire(byPlayer.Entity);
+                        if (this.fuseDuration > 0f) {
+                            ILoadedSound fuseSound = (world as IClientWorldAccessor)?.LoadSound(new SoundParams() {
+                                Location        = new AssetLocation("sounds/effect/fuse"),
+                                ShouldLoop      = true,
+                                Position        = blockSel.FullPosition.ToVec3f(),
+                                DisposeOnFinish = false,
+                                Volume          = 1f,
+                                Range           = 16,
+                            }); // ..
+
+                            long sparkRef = world.RegisterGameTickListener(
+                                millisecondInterval : 10,
+                                onGameTick          : (_) => {
+
+                                    SimpleParticleProperties particles = BlockEntityBomb.smallSparks;
+                                    particles.MinPos.Set(blockSel.Position.ToVec3d() + new Vec3d(0.5, 1, 0.5));
+                                    world.SpawnParticles(
+                                        particlePropertiesProvider : particles,
+                                        dualCallByPlayer           : byPlayer
+                                    ); // ..
+                                } // ..
+                            ); // ..
+
+                            fuseSound?.Start();
+                            world.RegisterCallback((_) => {
+                                world.UnregisterGameTickListener(sparkRef);
+                                fuseSound?.Stop();
+                                fuseSound?.Dispose();
+                                blockEntity.Fire(byPlayer.Entity);
+                            }, (int)(this.fuseDuration * 1000f));
+
+                        } else blockEntity.Fire(byPlayer.Entity);
+
                         if (byPlayer?.WorldData?.CurrentGameMode != EnumGameMode.Creative)
                             slot.Itemstack?.Item.DamageItem(world, byPlayer.Entity, slot, 1);
 

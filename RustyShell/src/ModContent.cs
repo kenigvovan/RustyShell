@@ -5,9 +5,6 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
-using Vintagestory.API.Config;
-using Vintagestory.GameContent;
-using Vintagestory.API.Client;
 using Vintagestory.GameContent.Mechanics;
 using System.Linq;
 
@@ -16,14 +13,14 @@ namespace RustyShell {
 
     public enum EnumGunState      { Dirty, Clean, Ready  }
     public enum EnumBarrelType    { Smoothbore, Rifled }
-    public enum EnumExplosionType { Simple, Piercing, HighExplosive, Canister, Fire, Gas, NonExplosive }
+    public enum EnumExplosiveType { Common, Explosive, AntiPersonnel, Gas, Incendiary }
 
     public static class ModContent {
 
         /// <summary>
-        /// 30 frames per seconds.
+        /// 60 frames per seconds.
         /// </summary>
-        public const int  HEAVY_GUN_UPDATE_RATE = 1000 / 20;
+        public const int  HEAVY_GUN_UPDATE_RATE = 1000 / 60;
 
         /// <summary>
         /// 1 frame per 60 miliseconds.
@@ -41,8 +38,6 @@ namespace RustyShell {
             this IWorldAccessor self,
             AssetLocation[] wildcards
         ) {
-
-            self.Logger.Chat(wildcards.Length.ToString());
 
             if (wildcards.Any(wildcard => wildcard.Path.IndexOf('*') != -1))
                 return self.EntityTypes.ToArray();
@@ -95,196 +90,6 @@ namespace RustyShell {
             return canDamage;
 
         } // bool ..
-
-
-        public static void SpawnSmokeParticles(
-            this IClientWorldAccessor self,
-            BlockPos pos
-        ) {
-            self.SpawnParticles(new SimpleParticleProperties(
-                1, 2,
-                ColorUtil.ToRgba(84, 84, 84, 0),
-                pos.ToVec3d(),
-                pos.ToVec3d(),
-                new Vec3f(-0.5f, 0.5f, -0.5f),
-                new Vec3f( 0.5f, 1.0f,  0.5f),
-                8f,
-                0f,
-                1f, 4f,
-                EnumParticleModel.Quad
-            ) {
-                ShouldDieInLiquid    = true,
-                WindAffected         = true,
-                SelfPropelled        = true,
-                OpacityEvolve        = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -255),
-                SizeEvolve           = new EvolvingNatFloat(EnumTransformFunction.QUADRATIC, 2),
-                ParentVelocityWeight = 2f,
-                ParentVelocity       = GlobalConstants.CurrentWindSpeedClient,
-            }); // ..
-        } // void ..
-
-
-        public static void ReleaseGas(
-            this IWorldAccessor self,
-            BlockPos pos,
-            int      radius,
-            float    damage,
-            Entity   byEntity
-        ) {
-            if (self is IServerWorldAccessor serverWorld) {
-
-                Room room = serverWorld.Api.ModLoader
-                    .GetModSystem<RoomRegistry>()
-                    .GetRoomForPosition(pos);
-
-
-                foreach (Entity entity in serverWorld.GetEntitiesAround(
-                    pos.ToVec3d(), radius, radius,
-                    (e) => !(e.Attributes?.GetBool("isMechanical", false) ?? false) && serverWorld.CanDamageEntity(byEntity, e, out bool _) && room.Contains(e.Pos.AsBlockPos))
-                ) {
-                    if(entity is not EntityPlayer)
-                    {
-                        continue;
-                    }
-                    ItemSlot itemSlot  = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory("character")
-                        ?[(int)EnumCharacterDressType.ArmorHead];
-                    ItemWearable gasmask = itemSlot?.Itemstack?.Item as ItemWearable;
-                    float gasStrength    = GameMath.Clamp(damage * (room.CoolingWallCount + room.NonCoolingWallCount) / GameMath.Max(room.ExitCount, 1f), 0f, damage);
-
-
-                    if (gasmask?.GetRemainingDurability(itemSlot?.Itemstack) == 0 || gasmask == null)
-                        entity.ReceiveDamage(new DamageSource {
-                            Source       = EnumDamageSource.Internal, 
-                            Type         = EnumDamageType.Suffocation,
-                            CauseEntity  = byEntity,
-                            SourceEntity = byEntity,
-                        }, gasStrength);
-
-                    else if (!((byEntity as IPlayer)?.WorldData?.CurrentGameMode == EnumGameMode.Creative))
-                        gasmask.DamageItem(serverWorld, entity, itemSlot, GameMath.Max(GameMath.RoundRandom(serverWorld.Rand, gasStrength), 0));
-                    
-                } // foreach ..
-                    
-            } else if ((self.ElapsedMilliseconds & ModContent.LOW_UPDATE_RATE) == ModContent.LOW_UPDATE_RATE) {
-
-                self.SpawnParticles(new SimpleParticleProperties(
-                    4, 32,
-                    ColorUtil.ToRgba(84, 204, 185, 0),
-                    pos.ToVec3d() - new Vec3d(radius >> 1, radius >> 2, radius >> 1),
-                    pos.ToVec3d() + new Vec3d(radius >> 1, radius >> 2, radius >> 1),
-                    new Vec3f(-1f, 0.5f, -1f),
-                    new Vec3f( 1f, 0.5f,  1f),
-                    8f,
-                    0.05f,
-                    1f, 4f,
-                    EnumParticleModel.Quad
-                ) {
-                    ShouldDieInLiquid    = true,
-                    WindAffected         = true,
-                    SelfPropelled        = true,
-                    OpacityEvolve        = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -255),
-                    SizeEvolve           = new EvolvingNatFloat(EnumTransformFunction.QUADRATIC, 2),
-                    ParentVelocityWeight = 3f,
-                    ParentVelocity       = GlobalConstants.CurrentWindSpeedClient,
-                }); // ..
-
-                self.SpawnParticles(new SimpleParticleProperties(
-                    1, 2,
-                    ColorUtil.ToRgba(84, 204, 185, 0),
-                    pos.ToVec3d(),
-                    pos.ToVec3d(),
-                    new Vec3f(-0.5f, 0.5f, -0.5f),
-                    new Vec3f( 0.5f, 1.0f,  0.5f),
-                    8f,
-                    0f,
-                    1f, 4f,
-                    EnumParticleModel.Quad
-                ) {
-                    ShouldDieInLiquid    = true,
-                    WindAffected         = true,
-                    SelfPropelled        = true,
-                    OpacityEvolve        = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -255),
-                    SizeEvolve           = new EvolvingNatFloat(EnumTransformFunction.QUADRATIC, 2),
-                    ParentVelocityWeight = 2f,
-                    ParentVelocity       = GlobalConstants.CurrentWindSpeedClient,
-                }); // ..
-            } // if ..
-        } // void ..
-
-
-        public static void DetonateCanister(
-            this IWorldAccessor self,
-            BlockPos pos,
-            int      blastRadius,
-            int      injureRadius,
-            Entity   byEntity
-        ) {
-
-            if (self is IServerWorldAccessor server) {
-
-                server.CreateExplosion(
-                    pos,
-                    EnumBlastType.EntityBlast,
-                    blastRadius >> 2,
-                    injureRadius,
-                    0f
-                ); // ..
-                
-
-                for (int i = 1; i < blastRadius >> 1; i++) {
-
-                    float pitch = i * 0.05f * GameMath.PIHALF;
-                    float num   = MathF.Cos(pitch);
-                    float num2  = MathF.Sin(pitch);
-
-                    int amount  = 10 / (i + 1);
-                    float ratio = 1f / amount;
-                    
-
-                    for (int j = 0; j <= amount; j++) {
-
-                        float yaw  = j * ratio * GameMath.PIHALF;
-                        float num3 = MathF.Cos(yaw);
-                        float num4 = MathF.Sin(yaw);
-
-                        EntityProperties type = server.GetEntityType(new AssetLocation("rustyshell:smallcaliber"));
-
-                        EntitySmallCaliber projectile = server.ClassRegistry.CreateEntity(type) as EntitySmallCaliber;
-                        projectile.FiredBy    = byEntity;
-                        projectile.ImpactSize = 4;
-                        projectile.ServerPos.SetPos(pos);
-                        projectile.ServerPos.Motion = new Vec3d(-num * num4, num2, -num * num3) * blastRadius * 0.05f;
-                        projectile.Pos.SetFrom(projectile.ServerPos);
-                        server.SpawnEntity(projectile);
-
-                        projectile = server.ClassRegistry.CreateEntity(type) as EntitySmallCaliber;
-                        projectile.FiredBy    = byEntity;
-                        projectile.ImpactSize = 4;
-                        projectile.ServerPos.SetPos(pos);
-                        projectile.ServerPos.Motion = new Vec3d(num * num4, num2, -num * num3) * blastRadius * 0.05f;
-                        projectile.Pos.SetFrom(projectile.ServerPos);
-                        server.SpawnEntity(projectile);
-
-                        projectile = server.ClassRegistry.CreateEntity(type) as EntitySmallCaliber;
-                        projectile.FiredBy    = byEntity;
-                        projectile.ImpactSize = 4;
-                        projectile.ServerPos.SetPos(pos);
-                        projectile.ServerPos.Motion = new Vec3d(num * num4, num2, num * num3) * blastRadius * 0.05f;
-                        projectile.Pos.SetFrom(projectile.ServerPos);
-                        server.SpawnEntity(projectile);
-
-                        projectile = server.ClassRegistry.CreateEntity(type) as EntitySmallCaliber;
-                        projectile.FiredBy    = byEntity;
-                        projectile.ImpactSize = 4;
-                        projectile.ServerPos.SetPos(pos);
-                        projectile.ServerPos.Motion = new Vec3d(-num * num4, num2, num * num3) * blastRadius * 0.05f;
-                        projectile.Pos.SetFrom(projectile.ServerPos);
-                        server.SpawnEntity(projectile);
-
-                    } // for ..
-                } // for ..
-            } // if ..
-        } // void ..
 
 
         /// <summary>
