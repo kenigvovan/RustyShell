@@ -1,19 +1,25 @@
 [
     {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
-        "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
-        "value" : {
-            "code"      : "rustyshell:barrel-fieldgun-12pdr-ruined",
-            "type"      : "item",
-            "stacksize" : 1,
-            "stock"     : { "avg": 1,  "var": 0.25 },
-            "price"     : { "avg": 26, "var": 6.5  }
+        "file": "game:config/tradelists/trader-treasurehunter.json",
+        "op": "addmerge",
+        "path": "/selling/list/-",
+        "value": {
+            "code": "rustyshell:barrel-fieldgun-12pdr-ruined",
+            "type": "item",
+            "stacksize": 1,
+            "stock": {
+                "avg": 1,
+                "var": 0.25
+            },
+            "price": {
+                "avg": 26,
+                "var": 6.5
+            }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:barrel-howitzer-12pdr-ruined",
             "type"      : "item",
@@ -22,9 +28,9 @@
             "price"     : { "avg": 26, "var": 6.5  }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:barrel-fieldgun-120mm-ruined",
             "type"      : "item",
@@ -33,9 +39,9 @@
             "price"     : { "avg": 46,  "var": 12   }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:barrel-howitzer-120mm-ruined",
             "type"      : "item",
@@ -44,9 +50,9 @@
             "price"     : { "avg": 46,  "var": 12   }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:barrel-machinegun-ruined",
             "type"      : "item",
@@ -58,9 +64,9 @@
     },
     
     {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:shell-120mm-round-ruined",
             "type"      : "item",
@@ -69,9 +75,9 @@
             "price"     : { "avg": 8, "var": 1 }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:shell-120mm-blunt-ruined",
             "type"      : "item",
@@ -82,9 +88,9 @@
     },
     
     {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:casing-brass-damaged",
             "type"      : "item",
@@ -93,9 +99,9 @@
             "price"     : { "avg": 6, "var": 1 }
         }
     }, {
-        "file"  : "game:entities/humanoid/trader-treasurehunter.json",
+        "file"  : "game:config/tradelists/trader-treasurehunter.json",
         "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
+        "path"  : "/selling/list/-",
         "value" : {
             "code"      : "rustyshell:casing-iron-damaged",
             "type"      : "item",
@@ -106,26 +112,39 @@
     },
 
     {
-        "file"  : "game:entities/humanoid/trader-luxuries.json",
-        "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
-        "value" : {
-            "code"      : "rustyshell:fuze-percussion",
-            "type"      : "item",
-            "stacksize" : 1,
-            "stock"     : { "avg": 2, "var": 1.25 },
-            "price"     : { "avg": 2, "var": 1 }
+        "file": "game:config/tradelists/trader-luxuries.json",
+        "op": "addmerge",
+        "path": "/selling/list/-",
+        "value": {
+            "code": "rustyshell:fuze-percussion",
+            "type": "item",
+            "stacksize": 1,
+            "stock": {
+                "avg": 2,
+                "var": 1.25
+            },
+            "price": {
+                "avg": 2,
+                "var": 1
+            }
         }
-    }, {
-        "file"  : "game:entities/humanoid/trader-luxuries.json",
-        "op"    : "addmerge",
-        "path"  : "/attributes/tradeProps/selling/list/-",
-        "value" : {
-            "code"      : "rustyshell:fuze-pressure",
-            "type"      : "item",
-            "stacksize" : 1,
-            "stock"     : { "avg": 2, "var": 1.25 },
-            "price"     : { "avg": 3, "var": 1 }
+    },
+    {
+        "file": "game:config/tradelists/trader-luxuries.json",
+        "op": "addmerge",
+        "path": "/selling/list/-",
+        "value": {
+            "code": "rustyshell:fuze-pressure",
+            "type": "item",
+            "stacksize": 1,
+            "stock": {
+                "avg": 2,
+                "var": 1.25
+            },
+            "price": {
+                "avg": 3,
+                "var": 1
+            }
         }
     }
 ]

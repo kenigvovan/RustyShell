@@ -54,7 +54,7 @@ namespace RustyShell {
                 .Translate(0.5f, 0, 0.5f)
                 .RotateY(this.orientable.Orientation)
                 .Translate(0, 0, this.orientable.Offset)
-                .Translate(0, 0f, -0.5f)
+                .Translate(-0.5f, 0f, -0.5f)
                 .Values;
 
             prog.ViewMatrix       = rpi.CameraMatrixOriginf;

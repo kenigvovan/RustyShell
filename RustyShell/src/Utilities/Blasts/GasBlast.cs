@@ -32,7 +32,11 @@ public static partial class BlastExtensions {
                         && room.Contains(e.Pos.AsBlockPos)
                     )) {
 
-                        ItemSlot itemslot    = (entity as EntityAgent)?.GearInventory?[(int)EnumCharacterDressType.ArmorHead];
+                        if (entity is not EntityPlayer)
+                        {
+                            continue;
+                        }
+                        ItemSlot itemslot = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory("character")?[(int)EnumCharacterDressType.ArmorHead];
                         ItemWearable gasmask = itemslot?.Itemstack?.Item as ItemWearable;
                         float gasStrength    = GameMath.Clamp(
                             RustyShellModSystem.ModConfig.GasDamage * (room.CoolingWallCount + room.NonCoolingWallCount) / GameMath.Max(room.ExitCount, 1f),

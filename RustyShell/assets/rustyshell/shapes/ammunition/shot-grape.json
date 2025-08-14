@@ -8,8 +8,8 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"wood":            "game:block/wood/planks/aged/generic1",
-		"blastpowdersack": "game:item/resource/blastpowdersack"
+		"wood": "game:block/wood/planks/aged/generic1",
+		"blastpowdersack": "game:item/bag/linensack/linen"
 	},
 	"elements": [
 		{

@@ -44,10 +44,10 @@
   "shape": { "base": "ammunition/baggedcharge" },
   "texturesByType": {
     "baggedcharge-oiled" : {
-      "blastpowdersack": {
-        "base": "game:item/resource/blastpowdersack",
-        "overlays": ["game:item/resource/hide/oiled"]
-      }
+        "blastpowdersack": {
+            "base": "game:item/bag/linensack/linen",
+            "overlays": [ "game:item/resource/hide/oiled" ]
+        }
     }
   },
   "heldTpIdleAnimation": "holdbothhandslarge", "heldTpUseAnimation": "twohandplaceblock",
