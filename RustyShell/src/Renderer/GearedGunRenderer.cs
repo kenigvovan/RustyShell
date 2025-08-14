@@ -45,7 +45,7 @@ namespace RustyShell {
                 .Translate(this.pos.X - camPos.X, this.pos.Y - camPos.Y, this.pos.Z - camPos.Z)
                 .Translate(0.5f, 0, 0.5f)
                 .RotateY(this.orientable.Orientation)
-                .Translate(this.gearAnchor.X, this.gearAnchor.Y, this.gearAnchor.Z - 0.5)
+                .Translate(this.gearAnchor.X - 0.5, this.gearAnchor.Y, this.gearAnchor.Z - 0.5)
                 .Translate(0, 0, this.orientable.Offset)
                 .RotateXDeg(this.gearedGun.Elevation)
                 .Translate(-0.5f, 0, -0.5f)

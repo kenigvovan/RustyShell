@@ -8,7 +8,7 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"blastpowdersack": "game:item/resource/blastpowdersack",
+		"blastpowdersack": "game:item/bag/linensack/linen",
 		"material": "game:block/metal/ingot/iron"
 	},
 	"elements": [
